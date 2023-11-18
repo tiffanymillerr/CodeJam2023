@@ -39,7 +39,7 @@ class MqttHandler:
         self.queue.put(json_data)
 
         # Example to print queue contents
-        print(list(self.queue.queue))
+        # print(list(self.queue.queue))
 
     def listen(self):
         client = mqtt.Client(client_id=self.CLIENT_ID, clean_session=True)
@@ -51,8 +51,11 @@ class MqttHandler:
 
 # Define a function to process messages from the queue and update DataFrames
 def process_data(message_queue: queue.Queue, 
-                 truck_df: pd.DataFrame, 
-                 load_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                 truck_df: pd.DataFrame = None, 
+                 load_df: pd.DataFrame = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+
+    truck_df    = pd.DataFrame() if truck_df == None else truck_df
+    load_df     = pd.DataFrame() if load_df == None else load_df
 
     while not message_queue.empty():
         json_data = message_queue.get()
@@ -65,10 +68,10 @@ def process_data(message_queue: queue.Queue,
             load_df = pd.DataFrame(columns=['seq', 'type', 'timestamp', 'loadId', 'originLatitude', 'originLongitude', 'destinationLatitude', 'destinationLongitude', 'equipmentType', 'price', 'mileage'])
             print("Start of new day")
         elif tp == 'truck':
-            print("Got truck")
+            # print("Got truck")
             truck_df = pd.concat([truck_df, temp_df], ignore_index=True)
         elif tp == 'load':
-            print("Got load")
+            # print("Got load")
             load_df = pd.concat([load_df, temp_df], ignore_index=True)
         elif tp == 'end':
             print("End of day")
@@ -77,8 +80,8 @@ def process_data(message_queue: queue.Queue,
     return truck_df, load_df
 
 # Define global DataFrames
-truck_df = pd.DataFrame()
-load_df = pd.DataFrame()
+# truck_df = pd.DataFrame()
+# load_df = pd.DataFrame()
 
 # Thread-Safe Queue
 message_queue = queue.Queue()

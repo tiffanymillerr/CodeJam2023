@@ -5,6 +5,7 @@ colorama==0.4.6
 fastapi==0.104.1
 h11==0.14.0
 idna==3.4
+paho-mqtt==1.6.1
 pydantic==2.5.1
 pydantic_core==2.14.3
 setuptools==68.0.0
@@ -13,4 +14,3 @@ starlette==0.27.0
 typing_extensions==4.8.0
 uvicorn==0.24.0.post1
 wheel==0.41.2
-paho-mqtt==1.6.1

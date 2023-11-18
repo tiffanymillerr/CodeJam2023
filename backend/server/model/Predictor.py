@@ -132,28 +132,15 @@ class Predictor():
             ls = []
             for i in range(0, n):
                 v = self.model(features, training=True)[0].numpy().tolist()
-                d = {
-                    'mileage': v[0],
-                    'price': v[1],
-                    'equipmentType': ['Flatbed', 'Reefer', 'Van'][(v[-3:]).index(max(v[-3:]))]
-                }
-                ls.append(v)
-            return pd.DataFrame(ls, columns=self.outputs)
+                ls.append([v[1], v[0], ['Flatbed', 'Reefer', 'Van'][(v[-3:]).index(max(v[-3:]))]])
+            return ls
         elif self.type == 'rf':
-            ls = []
-            for i in range(0, n):
-                v = self.model.predict(features)[0].tolist()
-                d = {
-                    'mileage': v[0],
-                    'price': v[1],
-                    'equipmentType': ['Flatbed', 'Reefer', 'Van'][(v[-3:]).index(max(v[-3:]))]
-                }
-                ls.append(v)
-            return pd.DataFrame(ls, columns=self.outputs)
+            v = self.model.predict(features)[0].tolist()
+            return [v[1], v[0], ['Flatbed', 'Reefer', 'Van'][(v[-3:]).index(max(v[-3:]))]]
 
 
 
-# loader = DataLoader('nn')
+# loader = Predictor('nn')
 
 # loader.add_data(
 #     loads=[f'mqtt_data_2/load_{x}.csv' for x in range(0, 8)]

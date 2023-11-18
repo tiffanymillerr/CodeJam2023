@@ -1,10 +1,47 @@
+from Predictor import Predictor
+from math import sin, cos, atan2, sqrt, R
+from geopy.distance import geodesic
+from Driver import Driver
+from Load import Load
+
 COST_PER_MILE = 1.38
 
-def calculate_distance(point1, point2):
-    # Placeholder for a function that calculates the distance between two points
-    return abs(point1 - point2)
+NN_PRED = Predictor('nn')
+NN_PRED.load('../data/model.h5')
 
-def score(load, driver):
+RF_PRED = Predictor('rf')
+RF_PRED.load('../data/model.rf')
+
+def predict(location: tuple(float, float), hour: int, minute: int, day_of_week: int, is_weekend: bool) -> list(Load):
+    data = [location[0], location[1], hour, minute, day_of_week, is_weekend]
+    allLoads = []
+    for x in range(5, 65, 5):
+        timedData = data
+        # Increment time by x minutes (if over 60, loop around in next hour)
+        if timedData[4] + x < 60:
+            timedData[4] += x
+        else:
+            timedData[4] = timedData[4] + x - 60
+            timedData[3] += 1
+
+        # Predict a single load from RF
+        rf_load = RF_PRED.predict(timedData, 1)         # 1 load
+        allLoads.append(Load(
+            rf_load[0], rf_load[1], rf_load[2], location[0], location[1], None
+        ))
+        # Predict 5 loads from NN
+        nn_loads = NN_PRED.predict(timedData, 5)        # 5 loads (list)
+        for nn_load in nn_loads:
+            allLoads.append(Load(
+            nn_load[0], nn_load[1], nn_load[2], location[0], location[1], None
+        ))
+    return allLoads
+
+def calculate_distance(point1: tuple(float, float), point2: tuple(float, float)) -> float:
+    # Placeholder for a function that calculates the distance between two points
+    return geodesic(point1, point2).km
+
+def score(load: Load, driver: Driver) -> float:
     distance_to_load = calculate_distance(driver.location, load.origin)
     deadhead_cost = distance_to_load * COST_PER_MILE
     profit = load.price - deadhead_cost
@@ -23,13 +60,14 @@ def score(load, driver):
 
     return profit
 
-def minScore(t_i, t_f, driver, predict_loads):
-    loads_predicted = predict_loads(t_i, t_f)
+def minScore(time: tuple(int, int, int, int), driver: Driver):
+    loads_predicted = predict(driver.location, *time)
     valid_scores = []
     # Append valid scores only
     for load in loads_predicted:
-        if score(load, driver) > 0:
-            valid_scores.append(score(load, driver))
+        s = score(load, driver) 
+        if s > 0:
+            valid_scores.append(s)
 
     valid_scores.sort()
     # Calculate 80th percentile
@@ -42,13 +80,13 @@ def minScore(t_i, t_f, driver, predict_loads):
 
     return percentile_score
 
-def onLoadEvent(load, current_time, driver, predict_loads):
+def onLoadEvent(load: Load, current_time: tuple(int, int, int, int), driver: Driver):
     # Current_time +1 to rep every 1 hour
-    min_score = minScore(current_time, current_time + 1, driver, predict_loads)
+
+    min_score = minScore(current_time, current_time + 1, driver)
     if score(load, driver) > min_score:
-        notify(driver)  # Notify driver
-    else:
-        pass
+        print(f"Notified Driver({driver.id}) about Load({load.id})")
+        # notify(driver)  # Notify driver
 
 # Note: missing 'calculate_distance', 'predict_loads', and 'notify' fcns
 

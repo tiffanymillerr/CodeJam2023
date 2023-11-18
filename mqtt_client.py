@@ -15,7 +15,7 @@ CLIENT_ID = "GDSC01"  # Replace with your team name
 # Output Format and Folder Settings
 OUTPUT_FORMAT = "csv"  # Change to "json" for JSON output
 OUTPUT_FOLDER = "mqtt_data"
-MAX_FILES_PER_DATE = 100
+MAX_FILES_PER_DATE = 10
 if not os.path.exists(OUTPUT_FOLDER):
     os.makedirs(OUTPUT_FOLDER)
 

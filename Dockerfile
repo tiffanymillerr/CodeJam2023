@@ -12,4 +12,4 @@ COPY . /usr/src/app
 RUN pip install --no-cache-dir paho-mqtt
 
 # Run mqtt_client.py when the container launches
-CMD ["python", "./mqtt_client.py"]
+ENTRYPOINT ["python", "./mqtt_client.py"]

@@ -3,28 +3,43 @@ import json
 import os
 import paho.mqtt.client as mqtt
 from datetime import datetime
+import find_path
+from typing import Optional, IO, Any, Dict
+
+# Find the project root
+project_root = find_path.get_project_root(
+    find_path.os.path.dirname(
+        find_path.os.path.abspath(__file__)
+        )
+    )
+
+# Load configurations from config.json
+config_path = os.path.join(project_root, 'config.json')
+with open('config.json') as config_file:
+    config = json.load(config_file)
 
 # MQTT Settings
-MQTT_BROKER = "fortuitous-welder.cloudmqtt.com"
-MQTT_PORT = 1883
-MQTT_TOPIC = "CodeJam"
-MQTT_USERNAME = "CodeJamUser"
-MQTT_PASSWORD = "123CodeJam"
-CLIENT_ID = "GDSC01"  # Replace with your team name
+MQTT_BROKER = config['mqtt']['broker']
+MQTT_PORT = config['mqtt']['port']
+MQTT_TOPIC = config['mqtt']['topic']
+MQTT_USERNAME = config['mqtt']['username']
+MQTT_PASSWORD = config['mqtt']['password']
+CLIENT_ID = config['mqtt']['client_id']
 
 # Output Format and Folder Settings
-OUTPUT_FORMAT = "csv"  # Change to "json" for JSON output
-OUTPUT_FOLDER = "mqtt_data"
-MAX_FILES_PER_DATE = 10
+OUTPUT_FORMAT = config['output']['format']
+MAX_FILES_PER_DATE = config['output']['max_files_per_date']
+
+OUTPUT_FOLDER = os.path.join(project_root, config['output']['folder'])
 if not os.path.exists(OUTPUT_FOLDER):
     os.makedirs(OUTPUT_FOLDER)
 
 # Global variables
-current_file = None
-file_counters = {}
+current_file: Optional[IO[str]] = None
+file_counters: Dict[str, int] = {}
 
 # Function to open a new file for the given date
-def open_new_file(date_str):
+def open_new_file(date_str:str) -> Optional[IO[str]]:
     # Increment the counter for this date
     file_counters[date_str] = file_counters.get(date_str, 0) + 1
     if file_counters[date_str] > MAX_FILES_PER_DATE:
@@ -42,12 +57,12 @@ def open_new_file(date_str):
     return file
 
 # Callback for when the client receives a CONNACK response from the server
-def on_connect(client, userdata, flags, rc):
+def on_connect(client: mqtt.Client, userdata: Any, flags: Dict, rc: int) -> None:
     print("Connected with result code "+str(rc))
     client.subscribe(MQTT_TOPIC)
 
 # Callback for when a PUBLISH message is received from the server
-def on_message(client, userdata, msg):
+def on_message(client: mqtt.Client, userdata: Any, msg: mqtt.MQTTMessage) -> None:
     global current_file
 
     print(f"Message received on topic {msg.topic}")

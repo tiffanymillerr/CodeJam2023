@@ -1,0 +1,18 @@
+{
+    "mqtt": {
+        "broker": "fortuitous-welder.cloudmqtt.com",
+        "port": 1883,
+        "topic": "CodeJam",
+        "username": "CodeJamUser",
+        "password": "123CodeJam",
+        "client_id": "GDSC01"
+    },
+    "output": {
+        "format": "csv",
+        "folder": "../mqtt_data",
+        "max_files_per_date": 10
+    },
+    "path":{
+        "mqtt_data":
+    }
+}

@@ -3,6 +3,7 @@ import json
 import os
 import paho.mqtt.client as mqtt
 from datetime import datetime
+import pandas as pd
 
 # MQTT Settings
 MQTT_BROKER = "fortuitous-welder.cloudmqtt.com"

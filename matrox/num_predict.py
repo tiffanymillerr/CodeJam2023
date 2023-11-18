@@ -3,7 +3,7 @@ import cv2
 from google.cloud import vision
 client = vision.ImageAnnotatorClient()
 
-cap = cv2.VideoCapture('output_video_new.mp4')
+cap = cv2.VideoCapture('output_video.mp4')
 allTexts = []
 fi = 0
 while cap.isOpened():

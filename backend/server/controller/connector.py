@@ -62,6 +62,10 @@ if __name__ == '__main__':
                 # You can now use truck_data and load_data DataFrames
                 # For example, print them, analyze, or save to CSV
                 # print(truck_data, load_data)
+                print("Truck Data")
+                print(truck_data.head())
+                print("Load Data")
+                print(load_data.head())
             time.sleep(5)  # Process every 5 seconds
 
     # Start periodic processing in a separate thread

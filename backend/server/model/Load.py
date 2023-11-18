@@ -6,3 +6,4 @@ class Load:
         self.equipment_type = equipment_type
         self.origin = origin
         self.destination = destination
+        

@@ -4,3 +4,4 @@ class Driver:
         self.location = location
         self.equip_type = equip_type
         self.trip_length_preference = trip_length_preference
+        

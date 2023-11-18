@@ -24,10 +24,10 @@ def score(load, driver):
     return profit
 
 def minScore(t_i, t_f, driver, predict_loads):
-    loadPredicted = predict_loads(t_i, t_f)
+    loads_predicted = predict_loads(t_i, t_f)
     valid_scores = []
     # Append valid scores only
-    for load in loadPredicted:
+    for load in loads_predicted:
         if score(load, driver) > 0:
             valid_scores.append(score(load, driver))
 

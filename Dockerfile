@@ -1,5 +1,4 @@
 # Use an official Python runtime as a parent image
-#Base image, pulling from dockerhub
 FROM python:3.9-slim 
 
 # Set the working directory in the container

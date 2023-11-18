@@ -9,7 +9,7 @@ WORKDIR /usr/src/app
 COPY . /usr/src/app
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir paho-mqtt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Run mqtt_client.py when the container launches
-ENTRYPOINT ["python", "./mqtt_client.py"]
+ENTRYPOINT ["python", "./mqtt_client_2.py"]

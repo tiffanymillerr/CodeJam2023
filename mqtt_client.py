@@ -15,17 +15,27 @@ CLIENT_ID = "GDSC01"  # Replace with your team name
 # Output Format and Folder Settings
 OUTPUT_FORMAT = "csv"  # Change to "json" for JSON output
 OUTPUT_FOLDER = "mqtt_data"
+MAX_FILES_PER_DATE = 100
 if not os.path.exists(OUTPUT_FOLDER):
     os.makedirs(OUTPUT_FOLDER)
 
-# Global variable to keep track of the current file and date
+# Global variables
 current_file = None
-current_date = None
+file_counters = {}
 
-# Function to open a new file for the current date
+# Function to open a new file for the given date
 def open_new_file(date_str):
-    file_name = f"mqtt_data_{date_str}.{OUTPUT_FORMAT}"
+    # Increment the counter for this date
+    file_counters[date_str] = file_counters.get(date_str, 0) + 1
+    if file_counters[date_str] > MAX_FILES_PER_DATE:
+        print(f"Maximum number of files reached for {date_str}. No new file will be created.")
+        return None
+
+    # Create file name with counter
+    counter_str = f"_{file_counters[date_str]:04d}" if file_counters[date_str] > 1 else ""
+    file_name = f"mqtt_data_{date_str}{counter_str}.{OUTPUT_FORMAT}"
     file_path = os.path.join(OUTPUT_FOLDER, file_name)
+    
     file = open(file_path, 'w', newline='', encoding='utf-8')
     if OUTPUT_FORMAT == "json":
         json.dump([], file)  # Initialize with an empty list
@@ -38,21 +48,19 @@ def on_connect(client, userdata, flags, rc):
 
 # Callback for when a PUBLISH message is received from the server
 def on_message(client, userdata, msg):
-    global current_file, current_date
+    global current_file
 
     print(f"Message received on topic {msg.topic}")
 
     # Convert message payload to a Python dictionary
     message_data = json.loads(msg.payload)
 
-    # Extract the date from the Start event and open a new file
+    # Handle Start event
     if message_data["type"] == "Start":
         date_str = datetime.fromisoformat(message_data["timestamp"]).strftime("%Y-%m-%d")
-        if date_str != current_date:
-            if current_file is not None:
-                current_file.close()
-            current_file = open_new_file(date_str)
-            current_date = date_str
+        if current_file is not None:
+            current_file.close()
+        current_file = open_new_file(date_str)
 
     # Write data to file for other message types
     elif current_file is not None and message_data["type"] != "End":

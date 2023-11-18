@@ -82,35 +82,3 @@ def process_data(message_queue: queue.Queue,
 # Define global DataFrames
 # truck_df = pd.DataFrame()
 # load_df = pd.DataFrame()
-
-# Thread-Safe Queue
-message_queue = queue.Queue()
-
-# Set Up Handler
-handler = MqttHandler(message_queue)
-
-# Threads Setup
-listener_thread = threading.Thread(target=handler.listen)
-
-# Start Listener Thread
-listener_thread.start()
-
-if __name__ == '__main__':
-    # Example usage of process_data function
-    def periodically_process_data():
-        import time
-        while True:
-            if not message_queue.empty():
-                truck_data, load_data = process_data(message_queue)
-                # You can now use truck_data and load_data DataFrames
-                # For example, print them, analyze, or save to CSV
-                # print(truck_data, load_data)
-                print("Truck Data")
-                print(truck_data.head())
-                print("Load Data")
-                print(load_data.head())
-            time.sleep(5)  # Process every 5 seconds
-
-    # Start periodic processing in a separate thread
-    processor_thread = threading.Thread(target=periodically_process_data)
-    processor_thread.start()

@@ -119,11 +119,18 @@ class Processor:
 
                 #return df
                 print("End of day")
-                return self.truck_df, self.load_df, True
+
+                tmp_truck = self.truck_df
+                tmp_load = self.load_df
+                self._start()
+                return tmp_truck, tmp_load, True
 
 
         # Return DataFrames in case they need to be used immediately after calling
-        return self.truck_df, self.load_df, False
+        tmp_truck = self.truck_df
+        tmp_load = self.load_df
+        self._start()
+        return tmp_truck, tmp_load, False
 
     @staticmethod
     def preprocess_time (df: pd.DataFrame):

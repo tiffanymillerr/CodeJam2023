@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> {
               time: entry['time']));
         }
       });
+      cards.sort((a, b) => a.id.compareTo(b.id));
     } else {
       // If the server did not return a 200 OK response,
       // throw an exception.

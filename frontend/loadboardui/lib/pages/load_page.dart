@@ -20,7 +20,7 @@ class _LoadPageState extends State<LoadPage> {
 
   _LoadPageState({required this.truckID});
 
-  Future<List<LoadCard>> updateIDs() async {
+  Future<List<LoadCard>?> updateIDs() async {
     final response = await http
         .get(Uri.parse('http://192.168.56.1/truck/$truckID/notifications'));
 
@@ -42,12 +42,14 @@ class _LoadPageState extends State<LoadPage> {
               time: entry['time']));
         }
       });
+      cards.sort((a, b) => a.id.compareTo(b.id));
+      return cards;
     } else {
       // If the server did not return a 200 OK response,
       // throw an exception.
       print('Failed to load data');
     }
-    return cards;
+    return null;
   }
 
   @override
@@ -83,13 +85,19 @@ class _LoadPageState extends State<LoadPage> {
                           elevation: 4,
                           expandedHeight: 50,
                           backgroundColor: Colors.grey.shade300,
+                          foregroundColor: Colors.grey.shade800,
                           title: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text('Here'),
+                            child: Text('Back',
+                                style: TextStyle(color: Colors.grey.shade800)),
                           )),
                       SliverList(
-                          delegate:
-                              SliverChildListDelegate(snapshot.data ?? [])),
+                          delegate: SliverChildListDelegate(snapshot.data ??
+                              [
+                                Center(
+                                    child: Text('No Load Notifications',
+                                        style: TextStyle(fontSize: 36)))
+                              ])),
                     ]),
                   ));
             }

@@ -35,7 +35,10 @@ class TruckCard extends StatelessWidget {
         },
         child: Container(
           height: 200,
-          decoration: BoxDecoration(color: Colors.grey.shade100),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100
+            borderRadius: BorderRadius.circular(15),
+          ),
           child: Column(
             children: [
               SizedBox(
@@ -76,6 +79,8 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String displayText = type == 'Equipment' && text.length > 10 ? 'Equip.' : text;
+    
     return TextButton(
       style: ButtonStyle(
           minimumSize: MaterialStateProperty.all(Size(100, 75)),
@@ -93,7 +98,7 @@ class _ActionButton extends StatelessWidget {
           )),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: Text('$type: $text', style: TextStyle(fontSize: 36)),
+        child: Text('$type: $displayText', style: TextStyle(fontSize: 36), overflow: TextOverflow.ellipsis)),
       ),
       onPressed: () {},
     );

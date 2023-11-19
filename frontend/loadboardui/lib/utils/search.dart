@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
@@ -33,8 +35,12 @@ class AsyncSearchAnchorState extends State<AsyncSearchAnchor> {
             padding: const MaterialStatePropertyAll<EdgeInsets>(
                 EdgeInsets.symmetric(horizontal: 16.0)),
             onSubmitted: (value) {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const LoadPage()));
+              if (value.isNotEmpty)
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            LoadPage(truckID: int.tryParse(value) ?? 0)));
             },
             hintText: 'Search Driver by ID',
             leading: const Icon(Icons.search),

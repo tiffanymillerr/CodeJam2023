@@ -5,17 +5,20 @@ import 'package:flutter/material.dart';
 import '../pages/load_page.dart';
 
 class TruckCard extends StatelessWidget {
-  final String truck;
   final int id;
+  final String truck;
   final String equipType;
   final String length;
+  final String time;
 
-  const TruckCard(
-      {super.key,
-      required this.truck,
-      required this.id,
-      required this.equipType,
-      required this.length});
+  const TruckCard({
+    super.key,
+    required this.truck,
+    required this.id,
+    required this.equipType,
+    required this.length,
+    required this.time,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +26,12 @@ class TruckCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
       child: TextButton(
         onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const LoadPage()));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => LoadPage(
+                        truckID: id,
+                      )));
         },
         child: Container(
           height: 200,
@@ -50,7 +57,8 @@ class TruckCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _ActionButton(text: equipType, type: 'Equipment'),
-                  _ActionButton(text: length, type: 'Trips')
+                  _ActionButton(text: length, type: 'Trips'),
+                  _ActionButton(text: time, type: 'Time')
                 ],
               )
             ],

@@ -156,11 +156,15 @@ def check_and_notify(load: Load, driver: Driver, current_time:Tuple[int, int, in
     Checks if you need to send a notif to a driver for a particular load, and if so, adds
     it to the notif global var
     '''
+    notif = NOTIFS.get(driver.id)
+    # if notif is not None:
+    #     for l in notif:
+    #         if l.id == load.id: return
     if onLoadEvent(load, current_time, driver):
         print(f'Notifying Driver {driver.id} with Load {load.id}')
         msg = build_msg(load, driver, current_time)
 
-        if NOTIFS.get(driver.id) is None:
+        if notif is None:
             NOTIFS[driver.id] = [msg]
         else:
             NOTIFS[driver.id].append(msg)

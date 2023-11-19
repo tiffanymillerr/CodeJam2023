@@ -1,12 +1,11 @@
 import sys
 import os
 # sys.path.append(os.path.abspath("../model"))
-# import model.MqttHandler as mq
+# import model.Score as Score
 import threading
 import queue
 import pandas as pd
 from typing import Tuple
-
 
 import paho.mqtt.client as mqtt
 import json
@@ -23,23 +22,29 @@ class MqttHandler:
     def __init__(self, queue):
         self.queue = queue
         self.cur_day = 0
-    
+        self.daytime = True #on first start, set to true #for debug set to true initially
+
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code "+str(rc))
         client.subscribe(self.MQTT_TOPIC)
 
     def on_message(self, client, userdata, msg):
         json_data = json.loads(msg.payload)
+        tp = json_data["type"].lower()
 
-        if json_data["type"].lower() == "start":
+        if tp == "start":
             json_data["cur_day"] = self.cur_day
+            self.daytime = True
             self.cur_day += 1
+        elif tp == "end":
+            self.daytime = False
 
         # Put the received message into the queue
+        # if self.daytime:
         self.queue.put(json_data)
 
         # Example to print queue contents
-        # print(list(self.queue.queue))
+        # print(json_data)
 
     def listen(self):
         client = mqtt.Client(client_id=self.CLIENT_ID, clean_session=True)
@@ -49,36 +54,132 @@ class MqttHandler:
         client.connect(self.MQTT_BROKER, self.MQTT_PORT, 60)
         client.loop_forever()
 
-# Define a function to process messages from the queue and update DataFrames
-def process_data(message_queue: queue.Queue, 
-                 truck_df: pd.DataFrame = None, 
-                 load_df: pd.DataFrame = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+class Processor:
+    truck_cols = ['seq', 'type', 'truckId', 'positionLatitude', 'positionLongitude', 'equipType', 'nextTripLengthPreference',
+        "hour","minute","day_of_week","is_weekend"]
+    load_cols = ['seq', 'type', 'loadId', 'originLatitude', 'originLongitude', 'destinationLatitude', 'destinationLongitude', 'equipmentType', 'price', 'mileage',
+        "hour","minute","day_of_week","is_weekend"]
 
-    truck_df    = pd.DataFrame() if truck_df == None else truck_df
-    load_df     = pd.DataFrame() if load_df == None else load_df
+    def __init__ (self):
+        self._start()
 
-    while not message_queue.empty():
-        json_data = message_queue.get()
-        temp_df = pd.DataFrame.from_dict(json_data, orient='index').T
-        tp = temp_df['type'].item().lower()
 
-        if tp == 'start':
-            # Reset DataFrames for new day
-            truck_df = pd.DataFrame(columns=['seq', 'type', 'timestamp', 'truckId', 'positionLatitude', 'positionLongitude', 'equipType', 'nextTripLengthPreference'])
-            load_df = pd.DataFrame(columns=['seq', 'type', 'timestamp', 'loadId', 'originLatitude', 'originLongitude', 'destinationLatitude', 'destinationLongitude', 'equipmentType', 'price', 'mileage'])
-            print("Start of new day")
-        elif tp == 'truck':
-            # print("Got truck")
-            truck_df = pd.concat([truck_df, temp_df], ignore_index=True)
-        elif tp == 'load':
-            # print("Got load")
-            load_df = pd.concat([load_df, temp_df], ignore_index=True)
-        elif tp == 'end':
-            print("End of day")
+    def _start(self):
+        # Reset DataFrames for new day
+        self.truck_df = pd.DataFrame(columns=Processor.truck_cols)
+        self.load_df = pd.DataFrame(columns=Processor.load_cols)
 
-    # Return DataFrames in case they need to be used immediately after calling
-    return truck_df, load_df
+        #Used to store memory, This should be new every day.
+        # What is the difference between this and the dfs above?
+        # Maybe we want to change the trucks_df to a trucks dict
+        self.truck_map = {}
+
+
+    # Define a function to process messages from the queue and update DataFrames
+    def process_data(self,
+                    message_queue: queue.Queue,
+                    truck_df: pd.DataFrame = None,
+                    load_df: pd.DataFrame = None,
+                    ) -> Tuple[pd.DataFrame, pd.DataFrame, bool]:
+
+        # df for load
+        # dict for trucks
+        #     have a field that calcs vals for all loads
+        #actually do this part later
+        # process then add to those mems
+
+        # pop from queue one at a time.
+
+        while not message_queue.empty():
+            # print("Hello")
+            json_data = message_queue.get()
+
+            # Create a temp df to hold your new payload
+            # Split time format from payload into its components (hour, minute, etc)
+            temp_df = Processor.preprocess_time(pd.DataFrame.from_dict(json_data, orient='index').T)
+
+            # Type of the message (truck, load, start, or end)
+            tp = temp_df['type'].item().lower()
+
+            if tp == 'start':
+                #This will basically reset the dfs
+                self._start()
+
+            elif tp == 'truck':
+                # We know that these should always be adding new information about a truck.
+                # We are not calculating anything based on truck position atm
+                self.truck_df = pd.concat([self.truck_df, temp_df], ignore_index=True)
+
+                # truck_id = json_data.[truckId]
+                # self.truck_map[truck_id] = json_data
+                # Calculate
+
+            elif tp == 'load':
+                self.load_df = pd.concat([self.load_df, temp_df], ignore_index=True)
+            elif tp == 'end':
+                #to do later
+                # self.truck_df.to_csv(f'../mqtt_data_2/truck_{self.cur_day}.csv', index=False)
+                # self.load_df.to_csv(f'mqtt_data_2/load_{self.cur_day}.csv', index=False)
+
+                #return df
+                print("End of day")
+                return self.truck_df, self.load_df, True
+
+
+        # Return DataFrames in case they need to be used immediately after calling
+        return self.truck_df, self.load_df, False
+
+    @staticmethod
+    def preprocess_time (df: pd.DataFrame):
+        try:
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df['hour'] = df['timestamp'].dt.hour
+            df['minute'] = df['timestamp'].dt.minute
+            df['day_of_week'] = df['timestamp'].dt.dayofweek
+            df['is_weekend'] = df['timestamp'].dt.weekday.isin([5, 6]).astype(int)
+
+            df = df.drop(columns=['timestamp'])
+        except:
+            print (df)
+            raise TypeError
+        return df
+
+    def _calculate_scores(self, truck_id):
+        # Add to the dict, which will update the position of the truck
+        # and figure out if the truck is new by using a flag?
+        # No, just calculate the score the truck with the new position
+        # needs to assign to all the loads near it
+        pass
+
 
 # Define global DataFrames
 # truck_df = pd.DataFrame()
 # load_df = pd.DataFrame()
+if __name__ == "__main__":
+    import threading
+    import time
+    processor = Processor()
+    def batch_process_data():
+        print("Commencing batch processing")
+        while True:
+            print (q)
+            if not q.empty():
+                truck_data, load_data, eod = processor.process_data(q)
+                print(truck_data)
+                print(load_data)
+
+                if not truck_data.empty:
+                    print (f'Truck Data\n\n{(truck_data).head(5)}')
+                if not load_data.empty:
+                    print (f'Truck Data\n\n{(load_data).head(5)}')
+
+            time.sleep(5)  # Process every 5 seconds
+
+
+    q = queue.Queue()
+    handler = MqttHandler(q)
+    listener_thread = threading.Thread(target=handler.listen)
+    processor_thread = threading.Thread(target=batch_process_data)
+
+    listener_thread.start()
+    processor_thread.start()

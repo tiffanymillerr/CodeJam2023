@@ -1,5 +1,5 @@
 import pandas as pd
-from Driver from Driver
+from model.Driver import Driver
 
 class Load:
     def __init__(self, ID, price, mileage, equipment_type, oLatitude, oLongitude, dLatitude, dLongitude):

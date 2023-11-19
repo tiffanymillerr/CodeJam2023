@@ -1,17 +1,21 @@
 from fastapi import FastAPI
-from controller.connector import MqttHandler, process_data
+from controller.connector import MqttHandler, Processor
 from model.Score import onLoadEvent, calc_profit, calculate_distance
 import queue, threading
 import pandas as pd
-import model.Load, model.Driver
+from model.Load import Load
+from model.Driver import Driver
+from typing import Tuple
 
 app = FastAPI()
-global TRUCKS = {} # List[dict] w/time
+global TRUCKS
+TRUCKS = {} # List[dict] w/time
 # id
 # equiptype
 # length
 # time
-global NOTIFS = {}
+global NOTIFS
+NOTIFS = {}
 # """
 # key : list
 
@@ -38,22 +42,22 @@ def list_trucks():
 @app.get("/truck/{id}/notifications")
 def get_notifications_for_truck(id: int):
     # Return a list of all the notifications the trucker has gotten
-    return NOTIF.get(id)
+    return NOTIFS.get(id)
 
-def build_msg(load:Load, driver: Driver):
+def build_msg(load:Load, driver: Driver, time: Tuple[int, int, int, int]):
     return {
         'id': load.id,
         'profit': calc_profit(load, driver),
         'distance': calculate_distance(driver.location, load.origin),
-        'time': f"{load.hour}:{load.minute}"
+        'time': f"{time[0]}:{time[1]}"
     }
 
 def build_truck_profile(truck: Driver) -> dict:
-    return{
+    return {
         'id':truck.id,
-        'equipType': truck.equipType,
-        'tripLengthPref':truck.tripLengthPref,
-        'time': f"{load.hour}:{load.minute}"
+        'equipType': truck.equip_type,
+        'tripLengthPref':truck.trip_length_preference,
+        'time': f"{truck.hour}:{truck.minute}"
     }
 
 if __name__ == '__main__':
@@ -62,6 +66,8 @@ if __name__ == '__main__':
 
     # Set Up Handler
     handler = MqttHandler(message_queue)
+
+    processor = Processor()
 
     # Threads Setup
     listener_thread = threading.Thread(target=handler.listen)
@@ -78,14 +84,14 @@ if __name__ == '__main__':
         import time
         while True:
             if not message_queue.empty():
-                truck_df, load_df, eod = process_data(message_queue)
+                truck_df, load_df, eod = processor.process_data(message_queue)
                 # You can now use truck_data and load_data DataFrames
                 # For example, print them, analyze, or save to CSV
                 # print(truck_data, load_data)
                 print("Truck Data")
-                print(truck_data.head())
+                print(truck_df.head())
                 print("Load Data")
-                print(load_data.head())
+                print(load_df.head())
 
                 for i, new_load in load_df.iterrows(): #new_load is a row, # 'row' is a Series containing the row data # You can access specific columns using row['column_name']
                     for i, truck in truck_df.iterrows():
@@ -97,17 +103,17 @@ if __name__ == '__main__':
                             new_load["is_weekend"]
                             )
 
-                        new_load = Load.buildInstanceFromSeries(new_load)
+                        load = Load.buildInstanceFromSeries(new_load)
                         driver = Driver.buildInstanceFromSeries(truck)
 
                         # Notification
-                        if onLoadEvent(new_load, current_time, driver): # on load event returns if you should be notified (None otherwise)
-                            msg = build_msg(new_load, driver)
+                        if onLoadEvent(load, current_time, driver): # on load event returns if you should be notified (None otherwise)
+                            msg = build_msg(load, driver, current_time)
 
-                            if NOTIF.get(driver.id) is None:
-                                NOTIF[driver.id] = [msg]
+                            if NOTIFS.get(driver.id) is None:
+                                NOTIFS[driver.id] = [msg]
                             else:
-                                NOTIF[driver.id].append(msg)
+                                NOTIFS[driver.id].append(msg)
 
                         # Updating Truck list
                         TRUCKS[driver.id] = build_truck_profile(driver)

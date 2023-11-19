@@ -78,8 +78,6 @@ class Processor:
     # Define a function to process messages from the queue and update DataFrames
     def process_data(self,
                     message_queue: queue.Queue,
-                    truck_df: pd.DataFrame = None,
-                    load_df: pd.DataFrame = None,
                     ) -> Tuple[pd.DataFrame, pd.DataFrame, bool]:
 
         # df for load

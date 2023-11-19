@@ -9,6 +9,7 @@ from tensorflow.keras.layers import Dense, Dropout
 
 import joblib
 import csv
+import numpy as np
 
 
 class Predictor():
@@ -128,14 +129,16 @@ class Predictor():
     def predict(self, features, n):
 
         if self.type == 'nn':
-            features = features.to_numpy().astype('float32')
+            features = np.array([features]).astype('float32')
             ls = []
             for i in range(0, n):
                 v = self.model(features, training=True)[0].numpy().tolist()
                 ls.append([v[1], v[0], ['Flatbed', 'Reefer', 'Van'][(v[-3:]).index(max(v[-3:]))]])
             return ls
         elif self.type == 'rf':
-            v = self.model.predict(features)[0].tolist()
+            v = self.model.predict([features])
+            print(v)
+            v = v[0].tolist()
             return [v[1], v[0], ['Flatbed', 'Reefer', 'Van'][(v[-3:]).index(max(v[-3:]))]]
 
 

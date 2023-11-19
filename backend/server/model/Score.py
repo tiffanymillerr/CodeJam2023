@@ -27,13 +27,13 @@ def predict(location: Tuple[float, float], hour: int, minute: int, day_of_week: 
         # Predict a single load from RF
         rf_load = RF_PRED.predict(timedData, 1)         # 1 load
         allLoads.append(Load(
-            rf_load[0], rf_load[1], rf_load[2], location[0], location[1], None
+            0, rf_load[0], rf_load[1], rf_load[2], location[0], location[1], None, None
         ))
         # Predict 5 loads from NN
         nn_loads = NN_PRED.predict(timedData, 5)        # 5 loads (list)
         for nn_load in nn_loads:
             allLoads.append(Load(
-            nn_load[0], nn_load[1], nn_load[2], location[0], location[1], None
+            0, nn_load[0], nn_load[1], nn_load[2], location[0], location[1], None, None
         ))
     return allLoads
 

@@ -1,3 +1,5 @@
+import pandas as pd
+
 class Driver:
     def __init__(self, ID, lLatitude, lLongitude, equip_type, trip_length_preference, hour, minute, day_of_week, is_weekend):
         self.id = ID

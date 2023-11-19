@@ -88,8 +88,17 @@ class _LoadPageState extends State<LoadPage> {
                           foregroundColor: Colors.grey.shade800,
                           title: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text('Back',
-                                style: TextStyle(color: Colors.grey.shade800)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Back',
+                                    style:
+                                        TextStyle(color: Colors.grey.shade800)),
+                                Text('TruckID: $truckID',
+                                    style:
+                                        TextStyle(color: Colors.grey.shade800))
+                              ],
+                            ),
                           )),
                       SliverList(
                           delegate: SliverChildListDelegate(snapshot.data ??

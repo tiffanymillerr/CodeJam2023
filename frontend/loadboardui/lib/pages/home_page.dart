@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
               id: entry['id'],
               truck: 'Truck',
               equipType: entry['equipType'],
-              length: entry['length'],
+              length: entry['tripLengthPref'],
               time: entry['time']));
         }
       });
@@ -48,43 +48,48 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     // updateIDs();
-    return FutureBuilder(
-      future: updateIDs(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // While waiting for the future to complete, show a loading indicator
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          // If there's an error, display an error message
-          return Text('Error: ${snapshot.error}');
-        } else {
-          // Once the future is complete, display the result
-          return Scaffold(
-              backgroundColor: Colors.grey.shade300,
-              appBar: AppBar(
-                  backgroundColor: Colors.grey.shade100,
-                  centerTitle: true,
-                  title: Text('Freight Elite',
-                      style: TextStyle(
-                          color: Colors.grey.shade700, fontSize: 36))),
-              body: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CustomScrollView(slivers: [
-                  SliverAppBar(
-                      pinned: true,
-                      elevation: 4,
-                      expandedHeight: 50,
-                      backgroundColor: Colors.grey.shade300,
-                      title: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: AsyncSearchAnchor(),
-                      )),
-                  SliverList(
-                      delegate: SliverChildListDelegate(snapshot.data ?? [])),
-                ]),
-              ));
-        }
+    return RefreshIndicator(
+      onRefresh: () async {
+        setState(() {});
       },
+      child: FutureBuilder(
+        future: updateIDs(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // While waiting for the future to complete, show a loading indicator
+            return CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            // If there's an error, display an error message
+            return Text('Error: ${snapshot.error}');
+          } else {
+            // Once the future is complete, display the result
+            return Scaffold(
+                backgroundColor: Colors.grey.shade300,
+                appBar: AppBar(
+                    backgroundColor: Colors.grey.shade100,
+                    centerTitle: true,
+                    title: Text('Freight Elite',
+                        style: TextStyle(
+                            color: Colors.grey.shade700, fontSize: 36))),
+                body: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CustomScrollView(slivers: [
+                    SliverAppBar(
+                        pinned: true,
+                        elevation: 4,
+                        expandedHeight: 50,
+                        backgroundColor: Colors.grey.shade300,
+                        title: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: AsyncSearchAnchor(),
+                        )),
+                    SliverList(
+                        delegate: SliverChildListDelegate(snapshot.data ?? [])),
+                  ]),
+                ));
+          }
+        },
+      ),
     );
   }
 }

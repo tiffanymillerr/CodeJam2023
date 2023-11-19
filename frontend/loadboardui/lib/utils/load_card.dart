@@ -1,11 +1,14 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+final fcur = NumberFormat("#,##0.00", "en_US");
 
 class LoadCard extends StatelessWidget {
   final int id;
-  final int profit;
-  final int distance;
+  final double profit;
+  final double distance;
   final String time;
 
   const LoadCard(
@@ -32,7 +35,8 @@ class LoadCard extends StatelessWidget {
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('$distance Miles Away From You !',
+                      Text(
+                          '${distance.toStringAsFixed(1)} Miles Away From You !',
                           style: TextStyle(fontSize: 24)),
                       Text(time.toString(),
                           style: TextStyle(
@@ -44,7 +48,7 @@ class LoadCard extends StatelessWidget {
               ),
               Text('Load available near your current location.'),
               Text('Load ID $id'),
-              Text('\$$profit profit for entire trip')
+              Text('\$${fcur.format(profit)} profit for entire trip')
             ],
           ),
         ));

@@ -27,40 +27,7 @@ NOTIFS = {}
 
 # """
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-@app.get("/truck")
-def list_trucks():
-    # Return list of all truck IDs
-    # Turns dict into list
-    unique_trucks = list(TRUCKS.values())
-    return unique_trucks
-
-
-@app.get("/truck/{id}/notifications")
-def get_notifications_for_truck(id: int):
-    # Return a list of all the notifications the trucker has gotten
-    return NOTIFS.get(id)
-
-def build_msg(load:Load, driver: Driver, time: Tuple[int, int, int, int]):
-    return {
-        'id': load.id,
-        'profit': calc_profit(load, driver),
-        'distance': calculate_distance(driver.location, load.origin),
-        'time': f"{time[0]}:{time[1]}"
-    }
-
-def build_truck_profile(truck: Driver) -> dict:
-    return {
-        'id':truck.id,
-        'equipType': truck.equip_type,
-        'tripLengthPref':truck.trip_length_preference,
-        'time': f"{truck.hour}:{truck.minute}"
-    }
-
-if __name__ == '__main__':
+def on_startup():
     # Thread-Safe Queue
     message_queue = queue.Queue()
 
@@ -124,3 +91,41 @@ if __name__ == '__main__':
     # Start periodic processing in a separate thread
     processor_thread = threading.Thread(target=periodically_process_data)
     processor_thread.start()
+
+# Register the on_startup function to be called when the application starts
+app.add_event_handler("startup", on_startup)
+
+
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+@app.get("/truck")
+def list_trucks():
+    # Return list of all truck IDs
+    # Turns dict into list
+    unique_trucks = list(TRUCKS.values())
+    return unique_trucks
+
+
+@app.get("/truck/{id}/notifications")
+def get_notifications_for_truck(id: int):
+    # Return a list of all the notifications the trucker has gotten
+    return NOTIFS.get(id)
+
+def build_msg(load:Load, driver: Driver, time: Tuple[int, int, int, int]):
+    return {
+        'id': load.id,
+        'profit': calc_profit(load, driver),
+        'distance': calculate_distance(driver.location, load.origin),
+        'time': f"{time[0]}:{time[1]}"
+    }
+
+def build_truck_profile(truck: Driver) -> dict:
+    return {
+        'id':truck.id,
+        'equipType': truck.equip_type,
+        'tripLengthPref':truck.trip_length_preference,
+        'time': f"{truck.hour}:{truck.minute}"
+    }

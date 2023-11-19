@@ -39,22 +39,27 @@ def predict(location: Tuple[float, float], hour: int, minute: int, day_of_week: 
 
 def calculate_distance(point1: Tuple[float, float], point2: Tuple[float, float]) -> float:
     # Placeholder for a function that calculates the distance between two points
-    return geodesic(point1, point2).km
+    return geodesic(point1, point2).miles
 
-def score(load: Load, driver: Driver) -> float:
+def calc_profit(load: Load, driver: Driver):
     distance_to_load = calculate_distance(driver.location, load.origin)
     deadhead_cost = distance_to_load * COST_PER_MILE
     profit = load.price - deadhead_cost
+    return profit
+
+def score(load: Load, driver: Driver) -> float:
+
+    profit = calc_profit(load, driver)
 
     # Adjust score based on equip type and trip length preference
     if driver.equip_type != load.equipment_type:
         return 0
 
     if load.mileage >= 200:
-        trip_length = 'Long' 
+        trip_length = 'Long'
     else:
         trip_length ='Short'
-    
+
     if driver.trip_length_preference != trip_length:
         profit *= 0.5  # Half the score if trip length preference doesn't match
 
@@ -65,14 +70,14 @@ def minScore(time: Tuple[int, int, int, int], driver: Driver) -> float:
     valid_scores = []
     # Append valid scores only
     for load in loads_predicted:
-        s = score(load, driver) 
+        s = score(load, driver)
         if s > 0:
             valid_scores.append(s)
 
     valid_scores.sort()
     # Calculate 80th percentile
     index = int(0.8 * len(valid_scores)) - 1
-    
+
     if valid_scores:
         percentile_score = valid_scores[index]
     else:
@@ -83,8 +88,7 @@ def minScore(time: Tuple[int, int, int, int], driver: Driver) -> float:
 def onLoadEvent(load: Load, current_time: Tuple[int, int, int, int], driver: Driver) -> bool:
     # Current_time +1 to rep every 1 hour
 
-    min_score = minScore(current_time, current_time + 1, driver)
+    min_score = minScore(current_time, driver)
     return score(load, driver) > min_score
 
 # Note: missing 'calculate_distance', 'predict_loads', and 'notify' fcns
-

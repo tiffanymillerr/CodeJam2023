@@ -49,6 +49,7 @@ class MqttHandler:
         if json_data["type"].lower() == "start":
             json_data["cur_day"] = self.cur_day
             self.cur_day += 1
+        print('Got message:', json_data)
 
         # Put the received message into the queue for further processing
         self.queue.put(json_data)

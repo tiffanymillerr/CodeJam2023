@@ -6,6 +6,7 @@ import pandas as pd
 from model.Load import Load
 from model.Driver import Driver
 from typing import Tuple
+import time
 
 app = FastAPI()
 global TRUCKS
@@ -52,22 +53,19 @@ def on_startup():
     # Global
 
     def periodically_process_data():
-        import time
+        global TRUCKS
+        global NOTIFS
+        global LOADS
         while True:
             if not message_queue.empty():
                 truck_df, load_df, eod = processor.process_data(message_queue)
                 # You can now use truck_data and load_data DataFrames
                 # For example, print them, analyze, or save to CSV
-                # print(truck_data, load_data)
-                print("Truck Data")
-                print(truck_df.head())
-                print("Load Data")
-                print(load_df.head())
 
                 if eod: #Reset everything
-                    global TRUCKS = {}
-                    global NOTIFS = {}
-                    global LOADS = pd.DataFrame(columns = load_cols)
+                    TRUCKS = {}
+                    NOTIFS = {}
+                    LOADS = pd.DataFrame(columns = load_cols)
                     continue
 
                 for j, new_load in load_df.iterrows(): #new_load is a row, # 'row' is a Series containing the row data # You can access specific columns using row['column_name']

@@ -43,9 +43,6 @@ class MqttHandler:
         # if self.daytime:
         self.queue.put(json_data)
 
-        # Example to print queue contents
-        # print(json_data)
-
     def listen(self):
         client = mqtt.Client(client_id=self.CLIENT_ID, clean_session=True)
         client.username_pw_set(self.MQTT_USERNAME, self.MQTT_PASSWORD)
@@ -89,7 +86,6 @@ class Processor:
         # pop from queue one at a time.
 
         while not message_queue.empty():
-            # print("Hello")
             json_data = message_queue.get()
 
             # Create a temp df to hold your new payload
@@ -101,17 +97,20 @@ class Processor:
 
             if tp == 'start':
                 #This will basically reset the dfs
+                print('Start of day')
                 self._start()
 
             elif tp == 'truck':
                 # We know that these should always be adding new information about a truck.
                 # We are not calculating anything based on truck position atm
+                print('Trucks:', temp_df['truckId'])
                 self.truck_df = pd.concat([self.truck_df, temp_df], ignore_index=True)
 
                 # truck_id = json_data.[truckId]
                 # self.truck_map[truck_id] = json_data
 
             elif tp == 'load':
+                print('Loads:', temp_df['loadId'])
                 self.load_df = pd.concat([self.load_df, temp_df], ignore_index=True)
             elif tp == 'end':
                 #to do later
@@ -162,8 +161,6 @@ if __name__ == "__main__":
             print (q)
             if not q.empty():
                 truck_data, load_data, eod = processor.process_data(q)
-                print(truck_data)
-                print(load_data)
 
                 if not truck_data.empty:
                     print (f'Truck Data\n\n{(truck_data).head(5)}')

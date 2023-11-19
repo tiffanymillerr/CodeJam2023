@@ -11,6 +11,9 @@ import joblib
 import csv
 import numpy as np
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+
 
 class Predictor():
 
@@ -137,7 +140,6 @@ class Predictor():
             return ls
         elif self.type == 'rf':
             v = self.model.predict([features])
-            print(v)
             v = v[0].tolist()
             return [v[1], v[0], ['Flatbed', 'Reefer', 'Van'][(v[-3:]).index(max(v[-3:]))]]
 

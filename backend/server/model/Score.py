@@ -1,19 +1,18 @@
-from Predictor import Predictor
-from math import sin, cos, atan2, sqrt, R
+from model.Predictor import Predictor
 from geopy.distance import geodesic
-from Driver import Driver
-from Load import Load
+from model.Driver import Driver
+from model.Load import Load
 from typing import Tuple, List
 
 COST_PER_MILE = 1.38
 
 NN_PRED = Predictor('nn')
-NN_PRED.load('../data/model.h5')
+NN_PRED.load('data/model.h5')
 
 RF_PRED = Predictor('rf')
-RF_PRED.load('../data/model.rf')
+RF_PRED.load('data/model.rf')
 
-def predict(location: Tuple(float, float), hour: int, minute: int, day_of_week: int, is_weekend: bool) -> List(Load):
+def predict(location: Tuple[float, float], hour: int, minute: int, day_of_week: int, is_weekend: bool) -> List[Load]:
     data = [location[0], location[1], hour, minute, day_of_week, is_weekend]
     allLoads = []
     for x in range(5, 65, 5):
@@ -38,7 +37,7 @@ def predict(location: Tuple(float, float), hour: int, minute: int, day_of_week: 
         ))
     return allLoads
 
-def calculate_distance(point1: Tuple(float, float), point2: Tuple(float, float)) -> float:
+def calculate_distance(point1: Tuple[float, float], point2: Tuple[float, float]) -> float:
     # Placeholder for a function that calculates the distance between two points
     return geodesic(point1, point2).km
 
@@ -61,7 +60,7 @@ def score(load: Load, driver: Driver) -> float:
 
     return profit
 
-def minScore(time: Tuple(int, int, int, int), driver: Driver) -> float:
+def minScore(time: Tuple[int, int, int, int], driver: Driver) -> float:
     loads_predicted = predict(driver.location, *time)
     valid_scores = []
     # Append valid scores only
@@ -81,7 +80,7 @@ def minScore(time: Tuple(int, int, int, int), driver: Driver) -> float:
 
     return percentile_score
 
-def onLoadEvent(load: Load, current_time: Tuple(int, int, int, int), driver: Driver) -> bool:
+def onLoadEvent(load: Load, current_time: Tuple[int, int, int, int], driver: Driver) -> bool:
     # Current_time +1 to rep every 1 hour
 
     min_score = minScore(current_time, current_time + 1, driver)

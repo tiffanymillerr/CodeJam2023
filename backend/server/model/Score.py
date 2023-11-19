@@ -15,7 +15,7 @@ RF_PRED.load('data/model.rf')
 def predict(location: Tuple[float, float], hour: int, minute: int, day_of_week: int, is_weekend: bool) -> List[Load]:
     data = [location[0], location[1], hour, minute, day_of_week, is_weekend]
     allLoads = []
-    for x in range(5, 65, 5):
+    for x in range(5, 65, 10):
         timedData = data
         # Increment time by x minutes (if over 60, loop around in next hour)
         if timedData[4] + x < 60:

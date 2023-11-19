@@ -91,7 +91,7 @@ def on_startup():
                         # Updating Truck list
                         TRUCKS[driver.id] = build_truck_profile(driver)
 
-            time.sleep(5)  # Process every 5 seconds
+            time.sleep(0.5)  # Process every 5 seconds
 
     # Start periodic processing in a separate thread
     processor_thread = threading.Thread(target=periodically_process_data)

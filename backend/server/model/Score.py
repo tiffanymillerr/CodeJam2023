@@ -88,7 +88,7 @@ def minScore(time: Tuple[int, int, int, int], driver: Driver) -> float:
 def onLoadEvent(load: Load, current_time: Tuple[int, int, int, int], driver: Driver) -> bool:
     # Current_time +1 to rep every 1 hour
     if calculate_distance(load.origin, driver.location) > 130:
-        return 99999999
+        return False
     min_score = minScore(current_time, driver)
     return score(load, driver) > min_score
 

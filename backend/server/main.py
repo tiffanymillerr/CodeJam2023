@@ -5,33 +5,13 @@ import queue, threading
 import pandas as pd
 import model.Load, model.Driver
 
-
 app = FastAPI()
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-@app.get("/truck")
-def list_trucks():
-    # Return list of all truck IDs
-    pass
-
-@app.get("/truck/{id}/notifications")
-def get_notifications_for_truck(id: int):
-    # Return a list of all the notifications the trucker has gotten
-    return NOTIF.get(id)
-
+global TRUCKS = {} # List[dict] w/time
+# id
+# equiptype
+# length
+# time
 global NOTIFS = {}
-
-def build_msg(load:Load, driver: Driver):
-    return {
-        'id': load.id,
-        'profit': calc_profit(load, driver),
-        'distance': calculate_distance(driver.location, load.origin),
-        'time': f"{load['hour']}:{load['minute']}"
-    }
-
 # """
 # key : list
 
@@ -43,12 +23,40 @@ def build_msg(load:Load, driver: Driver):
 
 # """
 
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+@app.get("/truck")
+def list_trucks():
+    # Return list of all truck IDs
+    # Turns dict into list
+    unique_trucks = list(TRUCKS.values())
+    return unique_trucks
+
+
+@app.get("/truck/{id}/notifications")
+def get_notifications_for_truck(id: int):
+    # Return a list of all the notifications the trucker has gotten
+    return NOTIF.get(id)
+
+def build_msg(load:Load, driver: Driver):
+    return {
+        'id': load.id,
+        'profit': calc_profit(load, driver),
+        'distance': calculate_distance(driver.location, load.origin),
+        'time': f"{load.hour}:{load.minute}"
+    }
+
+def build_truck_profile(truck: Driver) -> dict:
+    return{
+        'id':truck.id,
+        'equipType': truck.equipType,
+        'tripLengthPref':truck.tripLengthPref,
+        'time': f"{load.hour}:{load.minute}"
+    }
+
 if __name__ == '__main__':
-
-    # queue to hold the results, and so get will try to constantly pop from it
-    # add to
-    #Need to check when there is a truck or a load
-
     # Thread-Safe Queue
     message_queue = queue.Queue()
 
@@ -62,7 +70,7 @@ if __name__ == '__main__':
     listener_thread.start()
 
 
-    # NOTIF = {}      # might cause issues where its declared\
+    # NOTIF = {}      # might cause issues where its declared
     # NOTIF_QUEUE = queue.Queue() # thread safe Priority queue is a built-in that is also thread safe
     # Global
 
@@ -92,13 +100,18 @@ if __name__ == '__main__':
                         new_load = Load.buildInstanceFromSeries(new_load)
                         driver = Driver.buildInstanceFromSeries(truck)
 
-                        if onLoadEvent(new_load, current_time, driver):     # on load event returns if you should be notified (None otherwise)
+                        # Notification
+                        if onLoadEvent(new_load, current_time, driver): # on load event returns if you should be notified (None otherwise)
                             msg = build_msg(new_load, driver)
 
                             if NOTIF.get(driver.id) is None:
                                 NOTIF[driver.id] = [msg]
                             else:
                                 NOTIF[driver.id].append(msg)
+
+                        # Updating Truck list
+                        TRUCKS[driver.id] = build_truck_profile(driver)
+
 
             time.sleep(5)  # Process every 5 seconds
 

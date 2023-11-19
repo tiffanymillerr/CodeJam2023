@@ -70,6 +70,7 @@ def on_startup():
 
                 for j, new_load in load_df.iterrows(): #new_load is a row, # 'row' is a Series containing the row data # You can access specific columns using row['column_name']
                     for i, truck in truck_df.iterrows():
+                        print(f"Load {new_load['id']} - truck {truck['id']}")
 
                         current_time = (
                             new_load["hour"],

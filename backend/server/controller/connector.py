@@ -85,7 +85,7 @@ class Processor:
 
         # pop from queue one at a time.
 
-        while not message_queue.empty():
+        while self.truck_df.shape[0] <= 10 and not message_queue.empty():
             json_data = message_queue.get()
 
             # Create a temp df to hold your new payload

@@ -157,6 +157,7 @@ def check_and_notify(load: Load, driver: Driver, current_time:Tuple[int, int, in
     it to the notif global var
     '''
     if onLoadEvent(load, current_time, driver):
+        print(f'Notifying Driver {driver.id} with Load {load.id}')
         msg = build_msg(load, driver, current_time)
 
         if NOTIFS.get(driver.id) is None:

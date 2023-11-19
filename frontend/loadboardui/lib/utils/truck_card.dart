@@ -23,7 +23,7 @@ class TruckCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
       child: TextButton(
         onPressed: () {
           Navigator.push(
@@ -34,7 +34,7 @@ class TruckCard extends StatelessWidget {
                       )));
         },
         child: Container(
-          height: 200,
+          height: 100,
           decoration: BoxDecoration(color: Colors.grey.shade100),
           child: Column(
             children: [
@@ -46,20 +46,13 @@ class TruckCard extends StatelessWidget {
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(truck, style: TextStyle(fontSize: 48)),
-                      Text(id.toString(), style: TextStyle(fontSize: 48))
+                      //Text(truck, style: TextStyle(fontSize: 24)),
+                      Text('ID: ${id.toString()}',
+                          style: TextStyle(fontSize: 24)),
+                      _ActionButton(text: equipType, type: 'Equipment'),
+                      _ActionButton(text: length, type: 'Trips'),
+                      _ActionButton(text: time, type: 'Time'),
                     ]),
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _ActionButton(text: equipType, type: 'Equipment'),
-                  _ActionButton(text: length, type: 'Trips'),
-                  _ActionButton(text: time, type: 'Time')
-                ],
               )
             ],
           ),
@@ -78,7 +71,6 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all(Size(100, 75)),
           foregroundColor:
               MaterialStateProperty.all<Color>(Colors.grey.shade700),
           backgroundColor:
@@ -92,8 +84,8 @@ class _ActionButton extends StatelessWidget {
                 )),
           )),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Text('$type: $text', style: TextStyle(fontSize: 36)),
+        padding: const EdgeInsets.all(5.0),
+        child: Text('$type: $text', style: TextStyle(fontSize: 24)),
       ),
       onPressed: () {},
     );

@@ -17,7 +17,7 @@ if not video_capture.isOpened():
 fps = video_capture.get(cv2.CAP_PROP_FPS)
 frame_size = (int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)), int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
-output_video = cv2.VideoWriter('output_video.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, frame_size, isColor=True)
+output_video = cv2.VideoWriter(f'{filename}_denoised.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, frame_size, isColor=True)
 
 
 while True:

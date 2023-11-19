@@ -15,7 +15,7 @@ RF_PRED.load('data/model.rf')
 def predict(location: Tuple[float, float], hour: int, minute: int, day_of_week: int, is_weekend: bool) -> List[Load]:
     data = [location[0], location[1], hour, minute, day_of_week, is_weekend]
     allLoads = []
-    for x in range(5, 65, 5):
+    for x in range(5, 65, 10):
         timedData = data
         # Increment time by x minutes (if over 60, loop around in next hour)
         if timedData[4] + x < 60:
@@ -87,8 +87,8 @@ def minScore(time: Tuple[int, int, int, int], driver: Driver) -> float:
 
 def onLoadEvent(load: Load, current_time: Tuple[int, int, int, int], driver: Driver) -> bool:
     # Current_time +1 to rep every 1 hour
-
+    if calculate_distance(load.origin, driver.location) > 130:
+        return False
     min_score = minScore(current_time, driver)
     return score(load, driver) > min_score
 
-# Note: missing 'calculate_distance', 'predict_loads', and 'notify' fcns

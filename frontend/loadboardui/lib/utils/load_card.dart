@@ -23,33 +23,49 @@ class LoadCard extends StatelessWidget {
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
         child: Container(
-          height: 200,
-          decoration: BoxDecoration(color: Colors.grey.shade100),
-          child: Column(
-            children: [
-              SizedBox(
-                height: 25,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 50),
-                child: Row(
+          decoration: BoxDecoration(
+              color: Colors.grey.shade100, border: Border.all(width: 4)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                          '${distance.toStringAsFixed(1)} Miles Away From You !',
+                      Text('${distance.toStringAsFixed(1)} miles away',
                           style: TextStyle(fontSize: 24)),
                       Text(time.toString(),
                           style: TextStyle(
-                              fontSize: 24, color: Colors.grey.shade500))
+                              fontSize: 24,
+                              color: Colors.grey.shade500,
+                              fontWeight: FontWeight.bold))
                     ]),
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              Text('Load available near your current location.'),
-              Text('Load ID $id'),
-              Text('\$${fcur.format(profit)} profit for entire trip')
-            ],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text('\$${fcur.format(profit)}',
+                            style: TextStyle(fontSize: 48)),
+                        Text(' (estimated profit)',
+                            style: TextStyle(fontSize: 18))
+                      ],
+                    ),
+                    Text(
+                      'Load ID $id',
+                      style: TextStyle(fontSize: 24),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+              ],
+            ),
           ),
         ));
   }

@@ -17,7 +17,7 @@ dependencies:
   - pandas=2.1.1=py312hc7c4135_0
   - paho-mqtt=1.6.1=pyhd8ed1ab_0
   - pip=23.3=py312haa95532_0
-  - python=3.12.0=h1d929f7_0
+  - python=3.11.0
   - python-dateutil=2.8.2=pyhd3eb1b0_0
   - python-tzdata=2023.3=pyhd3eb1b0_0
   - pytz=2023.3.post1=py312haa95532_0

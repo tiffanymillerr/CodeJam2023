@@ -47,7 +47,6 @@ def on_startup():
     # Start Listener Thread
     listener_thread.start()
 
-
     # NOTIF = {}      # might cause issues where its declared
     # NOTIF_QUEUE = queue.Queue() # thread safe Priority queue is a built-in that is also thread safe
     # Global
@@ -104,10 +103,10 @@ def on_startup():
 app.add_event_handler("startup", on_startup)
 
 
-
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
 
 @app.get("/truck")
 def list_trucks():
@@ -122,6 +121,7 @@ def get_notifications_for_truck(id: int):
     # Return a list of all the notifications the trucker has gotten
     return NOTIFS.get(id)
 
+
 def build_msg(load:Load, driver: Driver, time: Tuple[int, int, int, int]):
     return {
         'id': load.id,
@@ -130,6 +130,7 @@ def build_msg(load:Load, driver: Driver, time: Tuple[int, int, int, int]):
         'time': f"{time[0]}:{time[1]}"
     }
 
+
 def build_truck_profile(truck: Driver) -> dict:
     return {
         'id':truck.id,
@@ -137,6 +138,7 @@ def build_truck_profile(truck: Driver) -> dict:
         'tripLengthPref':truck.trip_length_preference,
         'time': f"{truck.hour}:{truck.minute}"
     }
+
 
 def consider_old_loads(truck: pd.Series, driver: Driver):
     for k, old_load in LOADS.iterrows():

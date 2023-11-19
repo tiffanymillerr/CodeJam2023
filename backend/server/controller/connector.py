@@ -101,36 +101,21 @@ class Processor:
                 self._start()
 
             elif tp == 'truck':
-                # We know that these should always be adding new information about a truck.
-                # We are not calculating anything based on truck position atm
                 print('Trucks:', temp_df['truckId'])
                 self.truck_df = pd.concat([self.truck_df, temp_df], ignore_index=True)
-
-                # truck_id = json_data.[truckId]
-                # self.truck_map[truck_id] = json_data
 
             elif tp == 'load':
                 print('Loads:', temp_df['loadId'])
                 self.load_df = pd.concat([self.load_df, temp_df], ignore_index=True)
             elif tp == 'end':
-                #to do later
-                # self.truck_df.to_csv(f'../mqtt_data_2/truck_{self.cur_day}.csv', index=False)
-                # self.load_df.to_csv(f'mqtt_data_2/load_{self.cur_day}.csv', index=False)
 
                 #return df
                 print("End of day")
-
-                tmp_truck = self.truck_df
-                tmp_load = self.load_df
-                self._start()
-                return tmp_truck, tmp_load, True
+                return self.truck_df, self.load_df, True
 
 
         # Return DataFrames in case they need to be used immediately after calling
-        tmp_truck = self.truck_df
-        tmp_load = self.load_df
-        self._start()
-        return tmp_truck, tmp_load, False
+        return self.truck_df, self.load_df, False
 
     @staticmethod
     def preprocess_time (df: pd.DataFrame):

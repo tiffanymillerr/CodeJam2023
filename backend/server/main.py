@@ -26,6 +26,11 @@ NOTIFS = {}
 # - hour:minute 24hour format
 
 # """
+global LOADS
+load_cols = ['seq', 'type', 'loadId', 'originLatitude', 'originLongitude', 'destinationLatitude', 'destinationLongitude', 'equipmentType', 'price', 'mileage',
+            "hour","minute","day_of_week","is_weekend"]
+LOADS = pd.DataFrame(columns = load_cols)
+
 
 def on_startup():
     # Thread-Safe Queue
@@ -60,7 +65,13 @@ def on_startup():
                 print("Load Data")
                 print(load_df.head())
 
-                for i, new_load in load_df.iterrows(): #new_load is a row, # 'row' is a Series containing the row data # You can access specific columns using row['column_name']
+                if eod: #Reset everything
+                    global TRUCKS = {}
+                    global NOTIFS = {}
+                    global LOADS = pd.DataFrame(columns = load_cols)
+                    continue
+
+                for j, new_load in load_df.iterrows(): #new_load is a row, # 'row' is a Series containing the row data # You can access specific columns using row['column_name']
                     for i, truck in truck_df.iterrows():
 
                         current_time = (
@@ -74,17 +85,14 @@ def on_startup():
                         driver = Driver.buildInstanceFromSeries(truck)
 
                         # Notification
-                        if onLoadEvent(load, current_time, driver): # on load event returns if you should be notified (None otherwise)
-                            msg = build_msg(load, driver, current_time)
+                        check_and_notify(load, driver, current_time)
 
-                            if NOTIFS.get(driver.id) is None:
-                                NOTIFS[driver.id] = [msg]
-                            else:
-                                NOTIFS[driver.id].append(msg)
+                        # If new driver => calc all loads => add to TRUCKS making it no longer a new driver <= do so in the next line
+                        if not TRUCKS.get(driver.id):
+                            consider_old_loads(truck, driver)
 
                         # Updating Truck list
                         TRUCKS[driver.id] = build_truck_profile(driver)
-
 
             time.sleep(5)  # Process every 5 seconds
 
@@ -129,3 +137,30 @@ def build_truck_profile(truck: Driver) -> dict:
         'tripLengthPref':truck.trip_length_preference,
         'time': f"{truck.hour}:{truck.minute}"
     }
+
+def consider_old_loads(truck: pd.Series, driver: Driver):
+    for k, old_load in LOADS.iterrows():
+        current_time = (
+            truck["hour"],
+            truck["minute"],
+            truck["day_of_week"],
+            truck["is_weekend"]
+        )
+        load = Load.buildInstanceFromSeries(old_load)
+
+        check_and_notify(load, driver, current_time)
+    
+
+def check_and_notify(load: Load, driver: Driver, current_time:Tuple[int, int, int, int]) -> None:
+    '''
+    Checks if you need to send a notif to a driver for a particular load, and if so, adds
+    it to the notif global var
+    '''
+    if onLoadEvent(load, current_time, driver):
+        msg = build_msg(load, driver, current_time)
+
+        if NOTIFS.get(driver.id) is None:
+            NOTIFS[driver.id] = [msg]
+        else:
+            NOTIFS[driver.id].append(msg)
+    

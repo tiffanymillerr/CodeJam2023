@@ -91,4 +91,3 @@ def onLoadEvent(load: Load, current_time: Tuple[int, int, int, int], driver: Dri
     min_score = minScore(current_time, driver)
     return score(load, driver) > min_score
 
-# Note: missing 'calculate_distance', 'predict_loads', and 'notify' fcns

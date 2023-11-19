@@ -110,7 +110,6 @@ class Processor:
 
                 # truck_id = json_data.[truckId]
                 # self.truck_map[truck_id] = json_data
-                # Calculate
 
             elif tp == 'load':
                 self.load_df = pd.concat([self.load_df, temp_df], ignore_index=True)

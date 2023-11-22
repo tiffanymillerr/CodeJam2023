@@ -1,4 +1,3 @@
-# CodeJam2023
 # Freight Elite: Optimizing Truck Load Selection
 # Inspiration
 Our problem motivation is that the trucking industry, vital to the global economy, faces significant inefficiencies in load selection. Our team, inspired by the challenges faced by truckers every day, set out to revolutionize how they interact with load boards. We aimed to create a tool to notify truckers of ideal loads given their location and preferred preferences, all while maximizing profit.
